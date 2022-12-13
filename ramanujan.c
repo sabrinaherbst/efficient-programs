@@ -12,12 +12,14 @@
 #include <math.h>
 #include <malloc.h>
 
+// represents a node with a reference to the next one, value and count
 struct node {
   struct node *next;
   long value;
   long count;
 };
 
+// calculates the cube of a long
 long cube(long n)
 {
   return n*n*n;
@@ -37,9 +39,10 @@ size_t hash(long key, size_t hash_size)
 }
 
 struct node **lookup(long key, struct node **table, size_t table_size)
-/* comment */
+/* goes through the table and searches for the node with value key and returns a pointer to the pointer of that object */
 {
   struct node **pp = table+hash(key,table_size);
+  // iterate through table
   for (; *pp!=NULL; pp = &((*pp)->next))
     if ((*pp)->value == key)
       return pp;
@@ -59,27 +62,36 @@ int main(int argc, char **argv)
 
   if (argc != 2)
     goto usage;
+  // converts this argument to an int with base 10
   n = strtol(argv[1],&endptr,10);
   if (*endptr != '\0')
     goto usage;
+
   table_size = size_table(n);
+  // allocate memory for the table
   table = calloc(table_size,sizeof(struct node*));
 
+  // TODO: store cube(i) and cube(j) right away - we do not need to compute it too many times
   for (i=0; cube(i)<=n; i++)
     for (j=i+1; cube(i)+cube(j)<=n; j++) {
       long sum = cube(i)+cube(j);
       struct node **sumnodepp = lookup(sum,table,table_size);
+      // check if already exists in table
       if (*sumnodepp != NULL) {
+	// TODO: do the if before -> then we do not need to increment the count that many times
+	// if so increase the count
         (*sumnodepp)->count++;
         if ((*sumnodepp)->count==2) { /* don't count additional hits */
           count++;
           checksum+=sum;
         }
       } else {
+	// create new node
         struct node *new = malloc(sizeof(struct node));
         new->next = NULL;
         new->value = sum;
         new->count = 1;
+	// set node to correct position
         *sumnodepp = new;
         occupation++;
       }
