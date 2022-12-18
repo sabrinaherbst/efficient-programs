@@ -35,6 +35,7 @@ size_t size_table(long n)
 size_t hash(long key, size_t hash_size)
 /* assumes that hash_size is a power of two */
 {
+    // Efficient version of modulo
   return key&(hash_size-1);
 }
 
@@ -42,7 +43,7 @@ struct node **lookup(long key, struct node **table, size_t table_size)
 /* goes through the table and searches for the node with value key and returns a pointer to the pointer of that object */
 {
   struct node **pp = table+hash(key,table_size);
-  // iterate through table
+  // iterate through list
   for (; *pp!=NULL; pp = &((*pp)->next))
     if ((*pp)->value == key)
       return pp;
@@ -71,30 +72,35 @@ int main(int argc, char **argv)
   // allocate memory for the table
   table = calloc(table_size,sizeof(struct node*));
 
-  // TODO: store cube(i) and cube(j) right away - we do not need to compute it too many times
-  for (i=0; cube(i)<=n; i++)
-    for (j=i+1; cube(i)+cube(j)<=n; j++) {
-      long sum = cube(i)+cube(j);
-      struct node **sumnodepp = lookup(sum,table,table_size);
-      // check if already exists in table
-      if (*sumnodepp != NULL) {
-	// TODO: do the if before -> then we do not need to increment the count that many times
-	// if so increase the count
-        (*sumnodepp)->count++;
-        if ((*sumnodepp)->count==2) { /* don't count additional hits */
-          count++;
-          checksum+=sum;
+    // TODO precalculate cube 0 to n and save the values.
+    for (i=0; cube(i)<=n; i++) {
+        // TODO calculate cube(i)+cube(j) only once
+        for (j=i+1; cube(i)+cube(j)<=n; j++) {
+            long sum = cube(i)+cube(j);
+            // TODO hold HashTable small by removing values smaller than i (dont forget to free memory).
+            // TODO check table size.
+            struct node **sumnodepp = lookup(sum,table,table_size);
+            // check if already exists in table
+            if (*sumnodepp != NULL) {
+                // TODO: do the if before -> then we do not need to increment the count that many times
+                // if so increase the count
+                (*sumnodepp)->count++;
+                if ((*sumnodepp)->count==2) {
+                    count++;
+                    checksum+=sum;
+                }
+            } else {
+                // create new node
+                // TODO multiple nodes of one list allocated far away -> Cache misses?!
+                struct node *new = malloc(sizeof(struct node));
+                new->next = NULL;
+                new->value = sum;
+                new->count = 1;
+                // set node to correct position
+                *sumnodepp = new;
+                occupation++;
+            }
         }
-      } else {
-	// create new node
-        struct node *new = malloc(sizeof(struct node));
-        new->next = NULL;
-        new->value = sum;
-        new->count = 1;
-	// set node to correct position
-        *sumnodepp = new;
-        occupation++;
-      }
     }
   printf("%ld Ramanujan numbers up to %ld, checksum=%ld\noccupation=%ld, size=%ld\n",count,n,checksum,occupation,table_size);
   printf("Memory usage: >=%ld\n",table_size*sizeof(struct node*)+occupation*sizeof(struct node));
