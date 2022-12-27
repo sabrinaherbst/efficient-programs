@@ -52,8 +52,10 @@ void merge(long *arr, long l,
     long n2 = r - m;
 
     // Create temp arrays
-    long L[n1], R[n2];
-
+    // long L[n1], R[n2];
+     
+    long *L = (long *) calloc(n1, sizeof(long));
+    long *R = (long *) calloc(n2, sizeof(long));
     // Copy data to temp arrays
     // L[] and R[]
     for (i = 0; i < n1; i++)
@@ -102,6 +104,8 @@ void merge(long *arr, long l,
         j++;
         k++;
     }
+    free(L);
+    free(R);
 }
 
 int main(int argc, char **argv) {
@@ -145,7 +149,7 @@ int main(int argc, char **argv) {
         }
 //        printf("%ld \n", i);
     }
-    printf("done \n");
+//    printf("done \n");
     assert(m <= table_size);
 //    qsort(table, m, sizeof(struct entry), comp_entry);
 
@@ -153,19 +157,34 @@ int main(int argc, char **argv) {
     // 1st iteration 0, 2, 4, ...
     // 2nd iteration 0, 4, 8, 12, ...
     // 3rd iteration 0, 8, 16, 24, ...
-    int increment = 2;
+    int increment = 2, increm = 0;
     for (i = 0; i < log2(cbrt_n); i++) {
         for (j = 0; j < cbrt_n-1-increment; (j+=increment)) {
-//            printf("%ld %ld \n", cbrt_n, j);
+	    if (indices[j] == indices[j+increment-1]){
+		increm = 0;
+	    } else {
+		increm = 1;
+	    }
+            printf("%ld %ld %ld \n", indices[j], indices[j+increment-1]-increm, indices[j+increment]-1);
             merge(table, indices[j], indices[j+increment-1]-1, indices[j+increment]-1);
         }
+	if (indices[cbrt_n - increment] == indices[cbrt_n - increment/2]){
+		increm = 0;
+	} else {
+		increm = 1;
+	}
 //        printf("%ld %ld \n", cbrt_n, i);
-        merge(table, indices[cbrt_n-increment], indices[cbrt_n-increment+increment-1]-1, m-1);
+        merge(table, indices[cbrt_n-increment], indices[cbrt_n-increment/2]-increm, m-1);
         increment *= 2;
     }
 
+    for (i = 0; i < cbrt_n; i++){
+	printf("%ld ", indices[i]);
+    }
+    printf("\n");
+
     for (i = 0; i < table_size; i++) {
-        printf("%ld \n", table[i]);
+        printf("%ld ", table[i]);
     }
 
     // iterate over the table and check if the next entry is the same as the current one
