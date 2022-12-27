@@ -223,7 +223,7 @@ int main(int argc, char **argv) {
 //    }
     printf("%ld Ramanujan numbers up to %ld, checksum=%ld\noccupation=%ld, size=%ld\n", count, n, checksum, m,
            table_size);
-    printf("Memory usage: >=%ld\n", table_size * sizeof(struct entry));
+    printf("Memory usage: >=%ld\n", table_size * sizeof(long) + n_indices * sizeof(long));
     return 0;
 
     usage:
