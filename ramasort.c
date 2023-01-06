@@ -142,10 +142,11 @@ int main(int argc, char **argv) {
 //    printf("%ld \n", table_size);
 
     bool value_changed = true;
+    long cube_i, sum;
     // fills the table with the values of i^3+j^3
     // instantiates the table with the required structs
     // TODO: store cube(i) and cube(j) to not calculate it that often
-    for (i = 0; cube(i) <= n; i++) {
+    for (i = 0; (cube_i = cube(i)) <= n; i++) {
 //        printf("i: %ld m: %ld \n", i, m);
         if (value_changed) {
             indices[i] = m;
@@ -156,11 +157,11 @@ int main(int argc, char **argv) {
             }
             break;
         }
-        for (j = i + 1; cube(i) + cube(j) <= n; j++) {
+        for (j = i + 1; (sum = (cube_i + cube(j))) <= n; j++) {
             // create new entry and store it in the table
 //            printf("%ld %ld \n", table_size, m);
 //            table[m++] = (struct entry) {i, j, cube(i) + cube(j)};
-            table[m++] = cube(i) + cube(j);
+            table[m++] = sum;
             value_changed = true;
         }
     }
