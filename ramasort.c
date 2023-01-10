@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
     long lower = -1, upper = inc;
     long sum = 0, cube_i = 0;
 
-    while (upper <= n + inc){
+    while (upper <= n + inc) {
 
         // clear table
         memset(table, 0, table_size);
@@ -156,8 +156,8 @@ int main(int argc, char **argv) {
         // fills the table with the values of i^3+j^3
         // instantiates the table with the required structs
         // TODO: store cube(i) and cube(j) to not calculate it that often
-        for (i = 0; (cube_i = cube(i)) < n ; i++) {
-    //        printf("i: %ld m: %ld \n", i, m);
+        for (i = 0; (cube_i = cube(i)) < n; i++) {
+            //        printf("i: %ld m: %ld \n", i, m);
             if (value_changed) {
                 indices[i] = m;
                 value_changed = false;
@@ -167,12 +167,18 @@ int main(int argc, char **argv) {
                 }
                 break;
             }
-            for (j = i + 1; (sum = (cube_i + cube(j))) <= n; j++) {
+
+            if (cube_i + cube(i + 1) < lower) {
+                j = (long) cbrt((double) lower - (double) cube_i) + 1;
+            } else {
+                j = i + 1;
+            }
+            for (; (sum = (cube_i + cube(j))) <= n; j++) {
                 if (sum <= upper && sum > lower) {
                     table[m++] = sum;
                     value_changed = true;
                 }
-                
+
             }
         }
 
@@ -180,7 +186,7 @@ int main(int argc, char **argv) {
 
         long increment = 1;
         for (i = 0; i < (long) log2(n_indices); i++) {
-    //        printf("Iteration: %ld of %lf n=%ld \n", i + 1, log2(n_indices), n);
+            //        printf("Iteration: %ld of %lf n=%ld \n", i + 1, log2(n_indices), n);
             for (j = 0; j <= n_indices - 2 * increment; j += 2 * increment) {
                 merge(table, indices[j], indices[j + increment] - 1, indices[j + increment * 2] - 1);
             }
@@ -197,7 +203,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        if (m <= table_size/3) {
+        if (m <= table_size / 3) {
             inc *= 2;
         }
         // printf("lower: %ld upper: %ld m: %ld inc: %ld \n", lower, upper, m, inc);
@@ -206,8 +212,9 @@ int main(int argc, char **argv) {
         upper = upper + inc;
     }
 
-    printf("%ld Ramanujan numbers up to %ld, checksum=%ld\noccupation=%ld, size=%ld\n", count, n, checksum, m, table_size);
-    printf("Memory usage: >=%ld\n", table_size * sizeof(long) + (n_indices+1) * sizeof(long));
+    printf("%ld Ramanujan numbers up to %ld, checksum=%ld\noccupation=%ld, size=%ld\n", count, n, checksum, m,
+           table_size);
+    printf("Memory usage: >=%ld\n", table_size * sizeof(long) + (n_indices + 1) * sizeof(long));
     return 0;
 
     usage:
