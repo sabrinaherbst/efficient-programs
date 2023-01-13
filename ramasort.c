@@ -14,22 +14,6 @@
 #include <assert.h>
 #include <stdbool.h>
 
-// defines entry struct that consists of int k and l and a long value
-struct entry {
-    long k, l;
-    long value;
-};
-
-// function that takes to pointers to entries - checks if the first value is bigger (1), equal (0) or smaller (-1) than the second
-long comp_entry(const void *p1, const void *p2) {
-    const struct entry *e1 = p1;
-    const struct entry *e2 = p2;
-    if (e1->value < e2->value)
-        return -1;
-    else
-        return e1->value > e2->value;
-}
-
 // computes the cube of a long
 long cube(long n) {
     return n * n * n;
@@ -38,15 +22,13 @@ long cube(long n) {
 size_t size_table(long n)
 /* compute a table size that is large enough to keep all I^3+J^3<n */
 {
-    return exp(log((double) n) * (2.0 / 3.0)) / 2 + 100;
+    return (size_t) exp(log((double) n) * (2.0 / 3.0)) / 2 + 100;
 }
 
-// Merges two subarrays of arr[].
+// Merges two sub-arrays of arr[].
 // First subarray is arr[l..m]
 // Second subarray is arr[m+1..r]
-void merge(long *arr, long l,
-           long m, long r) {
-//    printf("merge(%ld, %ld, %ld) \n", l, m, r);
+void merge(long *arr, long l, long m, long r) {
     long i, j, k;
     long n1 = m - l + 1;
     long n2 = r - m;
@@ -54,8 +36,6 @@ void merge(long *arr, long l,
     // Create temp arrays
     long *L = malloc(n1 * sizeof(long));
     long *R = malloc(n2 * sizeof(long));
-//    long L[n1], R[n2];
-
 
     // Copy data to temp arrays
     // L[] and R[]
@@ -64,8 +44,7 @@ void merge(long *arr, long l,
     for (j = 0; j < n2; j++)
         R[j] = arr[m + 1 + j];
 
-    // Merge the temp arrays back
-    // into arr[l..r]
+    // Merge the temp arrays back into arr[l..r]
     // Initial index of first subarray
     i = 0;
 
@@ -85,16 +64,14 @@ void merge(long *arr, long l,
         k++;
     }
 
-    // Copy the remaining elements
-    // of L[], if there are any
+    // Copy the remaining elements of L[] if there are any
     while (i < n1) {
         arr[k] = L[i];
         i++;
         k++;
     }
 
-    // Copy the remaining elements of
-    // R[], if there are any
+    // Copy the remaining elements of R[] if there are any
     while (j < n2) {
         arr[k] = R[j];
         j++;
@@ -112,7 +89,6 @@ int main(int argc, char **argv) {
     char *endptr;
     long i, j;
     long count = 0;
-//    struct entry *table;
     long *table;
     long *indices;
     size_t table_size;
@@ -121,29 +97,25 @@ int main(int argc, char **argv) {
 
     if (argc != 2)
         goto usage;
-    // converts str to integer number with base 10
+    // converts str to an integer number with base 10
     n = strtol(argv[1], &endptr, 10);
     if (*endptr != '\0')
         goto usage;
 
-    cbrt_n = (long) cbrt(n);
+    cbrt_n = (long) cbrt((double) n);
 
     table_size = 7500000;
     // allocates memory for the table
-//    table = calloc(table_size, sizeof(struct entry));
     table = calloc(table_size, sizeof(long));
 
-    long n_indices = 0;
+    long n_indices;
     double exp = log2((double) cbrt_n);
     n_indices = exp - trunc(exp) == 0 ? (long) cbrt_n : (long) pow(2, trunc(exp) + 1);
     indices = calloc(n_indices + 1, sizeof(long));
-//    printf("n_indices: %ld \n", n_indices);
-//    printf("%ld \n", (long)cbrt(n));
-//    printf("%ld \n", table_size);
 
     long inc = 20000;
     long lower = -1, upper = inc;
-    long sum = 0, cube_i = 0;
+    long sum, cube_i;
 
     while (upper <= n + inc) {
 
@@ -154,8 +126,6 @@ int main(int argc, char **argv) {
 
         bool value_changed = true;
         // fills the table with the values of i^3+j^3
-        // instantiates the table with the required structs
-        // TODO: store cube(i) and cube(j) to not calculate it that often
         for (i = 0; (cube_i = cube(i)) < n; i++) {
             //        printf("i: %ld m: %ld \n", i, m);
             if (value_changed) {
@@ -185,8 +155,7 @@ int main(int argc, char **argv) {
         assert(m <= table_size);
 
         long increment = 1;
-        for (i = 0; i < (long) log2(n_indices); i++) {
-            //        printf("Iteration: %ld of %lf n=%ld \n", i + 1, log2(n_indices), n);
+        for (i = 0; i < (long) log2((double) n_indices); i++) {
             for (j = 0; j <= n_indices - 2 * increment; j += 2 * increment) {
                 merge(table, indices[j], indices[j + increment] - 1, indices[j + increment * 2] - 1);
             }
@@ -206,7 +175,6 @@ int main(int argc, char **argv) {
         if (m <= table_size / 3) {
             inc *= 2;
         }
-        // printf("lower: %ld upper: %ld m: %ld inc: %ld \n", lower, upper, m, inc);
 
         lower = upper;
         upper = upper + inc;
