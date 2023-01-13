@@ -13,20 +13,14 @@
 #include <malloc.h>
 #include <assert.h>
 
-// defines entry struct that consists of int k and l and a long vlaue
-struct entry {
-    int k, l;
-    long value;
-};
-
 // function that takes to pointers to entries - checks if the first value is bigger (1), equal (0) or smaller (-1) than the second
 int comp_entry(const void *p1, const void *p2) {
-    const struct entry *e1 = p1;
-    const struct entry *e2 = p2;
-    if (e1->value < e2->value)
+    const long entry e1 = (long) p1;
+    const long entry e2 = (long) p2;
+    if (e1 < e2)
         return -1;
     else
-        return e1->value > e2->value;
+        return e1 > e2;
 }
 
 // computes the cube of a long
@@ -59,25 +53,25 @@ int main(int argc, char **argv) {
 
     table_size = size_table(n);
     // allocates memory for the table
-    table = calloc(table_size, sizeof(struct entry));
+    table = calloc(table_size, sizeof(long));
 
     // instantiates the table with the required structs
     // TODO: store cube(i) and cube(j) to not calculate it that often
     for (i = 0; cube(i) <= n; i++) {
         for (j = i + 1; cube(i) + cube(j) <= n; j++) {
-            // cretae new entry and store it in the table
-            table[m++] = (struct entry) {i, j, cube(i) + cube(j)};
+            // create new entry and store it in the table
+            table[m++] = cube(i) + cube(j);
         }
     }
     assert(m <= table_size);
     // sort table
-    qsort(table, m, sizeof(struct entry), comp_entry);
+    qsort(table, m, sizeof(struct long), comp_entry);
     // go over table and see how often previous entry is the same as current
     for (i = 1; i < m; i++) {
-        if (table[i - 1].value == table[i].value) {
+        if (table[i - 1] == table[i]) {
             count++;
-            checksum += table[i].value;
-            while (i < m - 1 && table[i].value == table[i + 1].value)
+            checksum += table[i];
+            while (i < m - 1 && table[i] == table[i + 1])
                 i++;
         }
     }
