@@ -15,7 +15,11 @@
 
 // function that takes to pointers to entries - checks if the first value is bigger (1), equal (0) or smaller (-1) than the second
 int comp_entry(const void *p1, const void *p2) {
-    return ( *(long*)p1 - *(long*)p2 );
+    if (*(long*)p1 < *(long*)p2){
+	return -1;
+    } else {
+	return *(long*)p1 > *(long*)p2;
+    }
 }
 
 // computes the cube of a long
