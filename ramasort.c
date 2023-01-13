@@ -14,22 +14,6 @@
 #include <assert.h>
 #include <stdbool.h>
 
-// defines entry struct that consists of int k and l and a long value
-struct entry {
-    long k, l;
-    long value;
-};
-
-// function that takes to pointers to entries - checks if the first value is bigger (1), equal (0) or smaller (-1) than the second
-long comp_entry(const void *p1, const void *p2) {
-    const struct entry *e1 = p1;
-    const struct entry *e2 = p2;
-    if (e1->value < e2->value)
-        return -1;
-    else
-        return e1->value > e2->value;
-}
-
 // computes the cube of a long
 long cube(long n) {
     return n * n * n;
@@ -130,24 +114,18 @@ int main(int argc, char **argv) {
 
     table_size = size_table(n);
     // allocates memory for the table
-//    table = calloc(table_size, sizeof(struct entry));
     table = calloc(table_size, sizeof(long));
 
     long n_indices = 0;
     double exp = log2((double) cbrt_n);
     n_indices = exp - trunc(exp) == 0 ? (long) cbrt_n : (long) pow(2, trunc(exp) + 1);
     indices = calloc(n_indices + 1, sizeof(long));
-//    printf("n_indices: %ld \n", n_indices);
-//    printf("%ld \n", (long)cbrt(n));
-//    printf("%ld \n", table_size);
 
     bool value_changed = true;
     long cube_i, sum;
     // fills the table with the values of i^3+j^3
     // instantiates the table with the required structs
-    // TODO: store cube(i) and cube(j) to not calculate it that often
     for (i = 0; (cube_i = cube(i)) <= n; i++) {
-//        printf("i: %ld m: %ld \n", i, m);
         if (value_changed) {
             indices[i] = m;
             value_changed = false;
@@ -159,28 +137,12 @@ int main(int argc, char **argv) {
         }
         for (j = i + 1; (sum = (cube_i + cube(j))) <= n; j++) {
             // create new entry and store it in the table
-//            printf("%ld %ld \n", table_size, m);
-//            table[m++] = (struct entry) {i, j, cube(i) + cube(j)};
             table[m++] = sum;
             value_changed = true;
         }
     }
 
     assert(m <= table_size);
-//    qsort(table, m, sizeof(struct entry), comp_entry);
-
-//    printf("Unsorted: \n");
-//    for (i = 0; i < table_size; i++) {
-//        printf("%ld \n", table[i]);
-//    }
-//    printf("done \n");
-
-
-//    printf("indices: \n");
-//    for (int i = 0; i < cbrt_n; ++i) {
-//        printf("%ld \n", indices[i]);
-//    }
-//    printf("indices done \n");
 
     // sort table
     // 1st iteration 0, 1, 2, ...
@@ -196,13 +158,6 @@ int main(int argc, char **argv) {
         increment *= 2;
     }
 
-
-//    printf("Sorted: \n");
-//    for (i = 0; i < table_size; i++) {
-//        printf("%ld \n", table[i]);
-//    }
-//    printf("done \n");
-
     // iterate over the table and check if the next entry is the same as the current one
     for (i = 1; i < m; i++) {
         if (table[i - 1] == table[i]) {
@@ -214,14 +169,6 @@ int main(int argc, char **argv) {
     }
 
     // iterate over the table and check if the next entry is the same as the current one
-//    for (i = 1; i < m; i++) {
-//        if (table[i - 1].value == table[i].value) {
-//            count++;
-//            checksum += table[i].value;
-//            while (i < m - 1 && table[i].value == table[i + 1].value)
-//                i++;
-//        }
-//    }
     printf("%ld Ramanujan numbers up to %ld, checksum=%ld\noccupation=%ld, size=%ld\n", count, n, checksum, m,
            table_size);
     printf("Memory usage: >=%ld\n", table_size * sizeof(long) + n_indices * sizeof(long));
