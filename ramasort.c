@@ -15,12 +15,7 @@
 
 // function that takes to pointers to entries - checks if the first value is bigger (1), equal (0) or smaller (-1) than the second
 int comp_entry(const void *p1, const void *p2) {
-    const long entry e1 = (long) p1;
-    const long entry e2 = (long) p2;
-    if (e1 < e2)
-        return -1;
-    else
-        return e1 > e2;
+    return ( *(long*)p1 - *(long*)p2 );
 }
 
 // computes the cube of a long
@@ -39,7 +34,7 @@ int main(int argc, char **argv) {
     char *endptr;
     long i, j;
     long count = 0;
-    struct entry *table;
+    long *table;
     size_t table_size;
     long m = 0;
     long checksum = 0;
@@ -65,7 +60,7 @@ int main(int argc, char **argv) {
     }
     assert(m <= table_size);
     // sort table
-    qsort(table, m, sizeof(struct long), comp_entry);
+    qsort(table, m, sizeof(long), comp_entry);
     // go over table and see how often previous entry is the same as current
     for (i = 1; i < m; i++) {
         if (table[i - 1] == table[i]) {
@@ -77,7 +72,7 @@ int main(int argc, char **argv) {
     }
     printf("%ld Ramanujan numbers up to %ld, checksum=%ld\noccupation=%ld, size=%ld\n", count, n, checksum, m,
            table_size);
-    printf("Memory usage: >=%ld\n", table_size * sizeof(struct entry));
+    printf("Memory usage: >=%ld\n", table_size * sizeof(long));
     return 0;
 
     usage:
