@@ -14,22 +14,6 @@
 #include <assert.h>
 #include <stdbool.h>
 
-// defines entry struct that consists of int k and l and a long value
-struct entry {
-    long k, l;
-    long value;
-};
-
-// function that takes to pointers to entries - checks if the first value is bigger (1), equal (0) or smaller (-1) than the second
-long comp_entry(const void *p1, const void *p2) {
-    const struct entry *e1 = p1;
-    const struct entry *e2 = p2;
-    if (e1->value < e2->value)
-        return -1;
-    else
-        return e1->value > e2->value;
-}
-
 // computes the cube of a long
 long cube(long n) {
     return n * n * n;
