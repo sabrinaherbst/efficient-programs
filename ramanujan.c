@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-//#include <malloc.h>
+#include <malloc.h>
 
 long cube(long n) {
     return n * n * n;
@@ -47,7 +47,7 @@ int calcMinJ(long lowerBound, long i) {
 }
 
 long calcUpperBound(long lowerBound, int window) {
-    return (long) (lowerBound == 0 ? 2000000000 : ((double) lowerBound * (1.2 / (1-0.75* exp(-0.45*window)))));
+    return (long) (lowerBound == 0 ? 2000000000 : ((double) lowerBound * (1.19 / (1-exp(-0.51*window)))));
 }
 
 long min(long x, long y) {
