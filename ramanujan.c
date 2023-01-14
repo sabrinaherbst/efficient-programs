@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <malloc.h>
+//#include <malloc.h>
 
 long cube(long n) {
     return n * n * n;
@@ -41,17 +41,23 @@ long *lookup(long key, long *table, size_t table_size)
     return pp;
 }
 
-
-int calcMinJ(long lowerBound, long i) {
-    return lowerBound == 0 ? 0 : (int) cbrt((double) lowerBound - (double) cube(i));
-}
-
 long calcUpperBound(long lowerBound, int window) {
-    return (long) (lowerBound == 0 ? 2000000000 : ((double) lowerBound * (1.19 / (1-exp(-0.51*window)))));
+    return (long) (lowerBound == 0 ? 3000000000 : ((double) lowerBound * (1.04 / (1-0.86*exp(-0.31*window)))));
 }
 
 long min(long x, long y) {
     return x < y ? x : y;
+}
+
+long max(long x, long y) {
+    return x < y ? y : x;
+}
+
+long calcMinJ(long lowerBound, long i) {
+    if (lowerBound == 0 || cube(i) > lowerBound) {
+        return i+1;
+    }
+    return max(i+1, (long) (double) cbrt((double) lowerBound - (double) cube(i)));
 }
 
 int main(int argc, char **argv) {
@@ -60,7 +66,7 @@ int main(int argc, char **argv) {
     long i, j;
     long count = 0;
     long *candidate_table;
-    int candidate_table_size;
+    size_t candidate_table_size;
     long *res_table;
     size_t res_table_size;
     long checksum = 0;
@@ -70,20 +76,19 @@ int main(int argc, char **argv) {
     n = strtol(argv[1], &endptr, 10);
     if (*endptr != '\0')
         goto usage;
-    candidate_table_size = 2<<20;
-    candidate_table = calloc(candidate_table_size, 8);
+    candidate_table_size = 1<<23;
     res_table_size = size_res_table(n);
     res_table = calloc(res_table_size, 8);
 
     long lowerBound;
     long upperBound = 0;
     for (int k = 0; upperBound < n; ++k) {
-        memset(candidate_table, 0, candidate_table_size);
+        candidate_table = calloc(candidate_table_size, 8);
         lowerBound = upperBound;
         upperBound = min(n, calcUpperBound(lowerBound, k));
 
         for (i = 0; cube(i) <= upperBound; i++) {
-            for (j = i+1; cube(i) + cube(j) <= upperBound; j++) {
+            for (j = calcMinJ(lowerBound, i); cube(i) + cube(j) <= upperBound; j++) {
                 long sum = cube(i) + cube(j);
 
                 if (sum >= lowerBound) {
