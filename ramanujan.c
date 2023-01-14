@@ -77,13 +77,13 @@ int main(int argc, char **argv) {
     if (*endptr != '\0')
         goto usage;
     candidate_table_size = 1<<23;
+    candidate_table = calloc(candidate_table_size, 8);
     res_table_size = size_res_table(n);
     res_table = calloc(res_table_size, 8);
 
     long lowerBound;
     long upperBound = 0;
     for (int k = 0; upperBound < n; ++k) {
-        memset(candidate_table, 0, candidate_table_size);
         lowerBound = upperBound;
         upperBound = min(n, calcUpperBound(lowerBound, k));
 
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
                 }
             }
         }
-
+        memset(candidate_table, 0, candidate_table_size);
     }
     printf("%ld Ramanujan numbers up to %ld, checksum=%ld\n", count, n, checksum);
     printf("Memory usage: >=%ld\n", candidate_table_size * 8 + res_table_size * 8);
