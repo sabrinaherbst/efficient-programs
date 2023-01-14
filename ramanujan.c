@@ -42,7 +42,7 @@ long *lookup(long key, long *table, size_t table_size)
 }
 
 long calcUpperBound(long lowerBound, int window) {
-    return (long) (lowerBound == 0 ? 3000000000 : ((double) lowerBound * (1.04 / (1-0.86*exp(-0.31*window)))));
+    return (long) (lowerBound == 0 ? 40000000000 : ((double) lowerBound * (1.04 / (1-0.86*exp(-0.31*window)))));
 }
 
 long min(long x, long y) {
