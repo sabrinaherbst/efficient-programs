@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <malloc.h>
+// #include <malloc.h>
 
 long cube(long n) {
     return n * n * n;
@@ -60,6 +60,12 @@ long calcMinJ(long lowerBound, long i) {
     return max(i+1, (long) (double) cbrt((double) lowerBound - (double) cube(i)));
 }
 
+void zeroOutTable(long *table, size_t table_size) {
+    for (int i = 0; i < table_size; ++i) {
+        *(table + i) = 0;
+    }
+}
+
 int main(int argc, char **argv) {
     long n;
     char *endptr;
@@ -106,7 +112,7 @@ int main(int argc, char **argv) {
                 }
             }
         }
-        memset(candidate_table, 0, candidate_table_size);
+        zeroOutTable(candidate_table, candidate_table_size);
     }
     printf("%ld Ramanujan numbers up to %ld, checksum=%ld\n", count, n, checksum);
     printf("Memory usage: >=%ld\n", candidate_table_size * 8 + res_table_size * 8);
