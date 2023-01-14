@@ -10,10 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <malloc.h>
+//#include <malloc.h>
 
 struct node {
-    struct node *next;
     long value;
     long count;
 };
@@ -38,8 +37,9 @@ size_t hash(long key, size_t hash_size)
 struct node **lookup(long key, struct node **table, size_t table_size)
 /* comment */
 {
+    long pos = key;
     struct node **pp = table + hash(key, table_size);
-    for (; *pp != NULL; pp = &((*pp)->next))
+    for (; *pp != NULL; pp = table + hash(++pos, table_size))
         if ((*pp)->value == key)
             return pp;
     return pp;
@@ -75,7 +75,6 @@ int main(int argc, char **argv) {
                 }
             } else {
                 struct node *new = malloc(sizeof(struct node));
-                new->next = NULL;
                 new->value = sum;
                 new->count = 1;
                 *sumnodepp = new;
