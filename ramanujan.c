@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-// #include <malloc.h>
+#include <malloc.h>
 
 long cube(long n) {
     return n * n * n;
