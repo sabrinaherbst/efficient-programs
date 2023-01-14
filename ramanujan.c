@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     long lowerBound;
     long upperBound = 0;
     for (int k = 0; upperBound < n; ++k) {
-        candidate_table = calloc(candidate_table_size, 8);
+        memset(candidate_table, 0, candidate_table_size);
         lowerBound = upperBound;
         upperBound = min(n, calcUpperBound(lowerBound, k));
 
