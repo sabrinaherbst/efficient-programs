@@ -12,21 +12,14 @@
 #include <math.h>
 #include <malloc.h>
 
-struct node {
-    struct node *next;
-    long value;
-    long count;
-};
-
 long cube(long n) {
     return n * n * n;
 }
 
-size_t size_table(long n)
-/* compute the table size so it is not too densely or too sparsely occupied 
-   and is a power of 2 */
+size_t size_res_table(long n)
 {
-    return 1 << (long) (log((double) n) * (2.0 / (3.0 * log(2.0))));
+    int size = ((int) log10((double) n)) + 5;
+    return 1 << size;
 }
 
 size_t hash(long key, size_t hash_size)
@@ -35,14 +28,42 @@ size_t hash(long key, size_t hash_size)
     return key & (hash_size - 1);
 }
 
-struct node **lookup(long key, struct node **table, size_t table_size)
+long *lookup(long key, long *table, size_t table_size)
 /* comment */
 {
-    struct node **pp = table + hash(key, table_size);
-    for (; *pp != NULL; pp = &((*pp)->next))
-        if ((*pp)->value == key)
+    long pos = key;
+    long *pp = table + hash(key, table_size);
+    for (;*pp != 0; pp = table + hash(++pos, table_size)) {
+        if (*pp == key) {
             return pp;
+        }
+    }
     return pp;
+}
+
+long calcUpperBound(long lowerBound, int window) {
+    return (long) (lowerBound == 0 ? 30000000000 : ((double) lowerBound * (1.04 / (1-0.86*exp(-0.31*window)))));
+}
+
+long min(long x, long y) {
+    return x < y ? x : y;
+}
+
+long max(long x, long y) {
+    return x < y ? y : x;
+}
+
+long calcMinJ(long lowerBound, long i) {
+    if (lowerBound == 0 || cube(i) > lowerBound) {
+        return i+1;
+    }
+    return max(i+1, (long) (double) cbrt((double) lowerBound - (double) cube(i)));
+}
+
+void zeroOutTable(long *table, size_t table_size) {
+    for (int i = 0; i < table_size; ++i) {
+        *(table + i) = 0;
+    }
 }
 
 int main(int argc, char **argv) {
@@ -50,9 +71,10 @@ int main(int argc, char **argv) {
     char *endptr;
     long i, j;
     long count = 0;
-    struct node **table;
-    size_t table_size;
-    long occupation = 0;
+    long *candidate_table;
+    size_t candidate_table_size;
+    long *res_table;
+    size_t res_table_size;
     long checksum = 0;
 
     if (argc != 2)
@@ -60,31 +82,40 @@ int main(int argc, char **argv) {
     n = strtol(argv[1], &endptr, 10);
     if (*endptr != '\0')
         goto usage;
-    table_size = size_table(n);
-    table = calloc(table_size, sizeof(struct node *));
+    candidate_table_size = 1<<23;
+    candidate_table = calloc(candidate_table_size, 8);
+    res_table_size = size_res_table(n);
+    res_table = calloc(res_table_size, 8);
 
-    for (i = 0; cube(i) <= n; i++)
-        for (j = i + 1; cube(i) + cube(j) <= n; j++) {
-            long sum = cube(i) + cube(j);
-            struct node **sumnodepp = lookup(sum, table, table_size);
-            if (*sumnodepp != NULL) {
-                (*sumnodepp)->count++;
-                if ((*sumnodepp)->count == 2) { /* don't count additional hits */
-                    count++;
-                    checksum += sum;
+    long lowerBound;
+    long upperBound = 0;
+    for (int k = 0; upperBound < n; ++k) {
+        lowerBound = upperBound;
+        upperBound = min(n, calcUpperBound(lowerBound, k));
+
+        for (i = 0; cube(i) <= upperBound; i++) {
+            for (j = calcMinJ(lowerBound, i); cube(i) + cube(j) <= upperBound; j++) {
+                long sum = cube(i) + cube(j);
+
+                if (sum >= lowerBound) {
+                    long *pos = lookup(sum, candidate_table, candidate_table_size);
+                    if (*pos == sum) {
+                        long *pos_res = lookup(sum, res_table, res_table_size);
+                        if (*pos_res != sum) {
+                            count++;
+                            checksum += sum;
+                            *pos_res = sum;
+                        }
+                    } else {
+                        *pos = sum;
+                    }
                 }
-            } else {
-                struct node *new = malloc(sizeof(struct node));
-                new->next = NULL;
-                new->value = sum;
-                new->count = 1;
-                *sumnodepp = new;
-                occupation++;
             }
         }
-    printf("%ld Ramanujan numbers up to %ld, checksum=%ld\noccupation=%ld, size=%ld\n", count, n, checksum, occupation,
-           table_size);
-    printf("Memory usage: >=%ld\n", table_size * sizeof(struct node *) + occupation * sizeof(struct node));
+        zeroOutTable(candidate_table, candidate_table_size);
+    }
+    printf("%ld Ramanujan numbers up to %ld, checksum=%ld\n", count, n, checksum);
+    printf("Memory usage: >=%ld\n", candidate_table_size * 8 + res_table_size * 8);
     return 0;
 
     usage:
