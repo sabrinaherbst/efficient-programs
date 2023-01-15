@@ -22,11 +22,14 @@ Description of the branches:
 * `ramasort-mergesort-loop` - makes minor loop changes to make it more efficient
 * `ramasort-memory-opt` - optimises memory usage
 * `ramasort-memory-lowerbound` - last optimisation updating the index based on the lower bound
+* `ramanujan-collision-handling` - new collision handling, traversing the hash table instead of linked lists
+* `ramanujan-datenstruktur` - eliminating the struct and introducing the result table 
+* `ramanujan-memory-opt` - introducing upper/lower bounds to restrict memory and better utilize the L3Cache
 
 ## Results
 The following shows our results using n^13. 
 
 | File      | Original Runtime | Optimised Runtime | Optimised Memory |
-|-----------|------------------|-------------------| ---------------- |
-| Ramanujan | TODO             | TODO              | TODO             |
+|-----------|------------------|-------------------|------------------|
+| Ramanujan | 32,377s          | 3,318s            | ~70MB            |
 | Ramasort  | 25,30s           | 9,8085s           | 100MB            |
